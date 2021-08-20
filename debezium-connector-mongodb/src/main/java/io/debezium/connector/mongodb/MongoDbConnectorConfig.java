@@ -487,7 +487,6 @@ public class MongoDbConnectorConfig extends CommonConnectorConfig {
     private final int snapshotMaxThreads;
 
     public MongoDbConnectorConfig(Configuration config) {
-
         super(config, config.getString(LOGICAL_NAME), DEFAULT_SNAPSHOT_FETCH_SIZE);
 
         String snapshotModeValue = config.getString(MongoDbConnectorConfig.SNAPSHOT_MODE);

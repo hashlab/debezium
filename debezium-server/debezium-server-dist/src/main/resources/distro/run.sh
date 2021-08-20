@@ -13,6 +13,4 @@ fi
 
 RUNNER=$(ls debezium-server-*runner.jar)
 
-export JAVA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=127.0.0.1:8000
-export GOOGLE_APPLICATION_CREDENTIALS=conf/pubsub-publisher.json
 exec $JAVA_BINARY $DEBEZIUM_OPTS $JAVA_OPTS -cp "$RUNNER:conf:lib/*" io.debezium.server.Main

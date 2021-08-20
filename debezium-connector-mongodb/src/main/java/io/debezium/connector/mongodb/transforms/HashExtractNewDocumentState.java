@@ -25,13 +25,8 @@ import io.debezium.transforms.ExtractNewRecordStateConfigDefinition.DeleteHandli
 import io.debezium.transforms.SmtManager;
 
 /**
- * Debezium Mongo Connector generates the CDC records in String format. Sink connectors usually are not able to parse
- * the string and insert the document as it is represented in the Source. so a user use this SMT to parse the String
- * and insert the MongoDB document in the JSON format.
- *
- * @param <R> the subtype of {@link ConnectRecord} on which this transformation will operate
- * @author Sairam Polavarapu
- * @author Renato mefi
+ * Extends from ExtractNewDocumentState and adds schema and type casting from int to float given a field list in
+ * debezium.source.transforms.unwrap.field.tofloat.list conf in application.properties.
  */
 public class HashExtractNewDocumentState<R extends ConnectRecord<R>> extends ExtractNewDocumentState<R> {
 

@@ -22,10 +22,8 @@ import io.debezium.connector.mongodb.transforms.ExtractNewDocumentState.ArrayEnc
 import io.debezium.schema.FieldNameSelector.FieldNamer;
 
 /**
- * MongoDataConverter handles translating MongoDB strings to Kafka Connect schemas and row data to Kafka
- * Connect records.
- *
- * @author Sairam Polavarapu
+ * Extends from MongoDataConverter and adds schema and type casting from int to float given a field list in
+ * fieldsToFloat property.
  */
 public class HashMongoDataConverter extends MongoDataConverter {
 
