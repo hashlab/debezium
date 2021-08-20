@@ -63,7 +63,7 @@ import io.debezium.util.Strings;
  */
 public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Transformation<R> {
 
-    private String addFieldsPrefix;
+    protected String addFieldsPrefix;
 
     public enum ArrayEncoding implements EnumeratedValue {
         ARRAY("array"),
@@ -115,10 +115,10 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         }
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExtractNewDocumentState.class);
-    private static final Pattern FIELD_SEPARATOR = Pattern.compile("\\.");
+    protected static final Logger LOGGER = LoggerFactory.getLogger(ExtractNewDocumentState.class);
+    protected static final Pattern FIELD_SEPARATOR = Pattern.compile("\\.");
 
-    private static final Field ARRAY_ENCODING = Field.create("array.encoding")
+    protected static final Field ARRAY_ENCODING = Field.create("array.encoding")
             .withDisplayName("Array encoding")
             .withEnum(ArrayEncoding.class, ArrayEncoding.ARRAY)
             .withWidth(ConfigDef.Width.SHORT)
@@ -127,7 +127,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
                     + "'array' is easier to consume but requires all elements in the array to be of the same type. "
                     + "Use 'document' if the arrays in data source mix different types together.");
 
-    private static final Field FLATTEN_STRUCT = Field.create("flatten.struct")
+    protected static final Field FLATTEN_STRUCT = Field.create("flatten.struct")
             .withDisplayName("Flatten struct")
             .withType(ConfigDef.Type.BOOLEAN)
             .withWidth(ConfigDef.Width.SHORT)
@@ -136,7 +136,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
             .withDescription("Flattening structs by concatenating the fields into plain properties, using a "
                     + "(configurable) delimiter.");
 
-    private static final Field DELIMITER = Field.create("flatten.struct.delimiter")
+    protected static final Field DELIMITER = Field.create("flatten.struct.delimiter")
             .withDisplayName("Delimiter for flattened struct")
             .withType(ConfigDef.Type.STRING)
             .withWidth(ConfigDef.Width.SHORT)
@@ -173,24 +173,24 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
                     + "Adds the operation type of the change event as a header."
                     + "Its key is '" + ExtractNewRecordStateConfigDefinition.DEBEZIUM_OPERATION_HEADER_KEY + "'");
 
-    private final ExtractField<R> afterExtractor = new ExtractField.Value<>();
-    private final ExtractField<R> patchExtractor = new ExtractField.Value<>();
-    private final ExtractField<R> keyExtractor = new ExtractField.Key<>();
+    protected final ExtractField<R> afterExtractor = new ExtractField.Value<>();
+    protected final ExtractField<R> patchExtractor = new ExtractField.Value<>();
+    protected final ExtractField<R> keyExtractor = new ExtractField.Key<>();
 
-    private MongoDataConverter converter;
-    private final Flatten<R> recordFlattener = new Flatten.Value<>();
+    protected MongoDataConverter converter;
+    protected final Flatten<R> recordFlattener = new Flatten.Value<>();
 
-    private boolean addOperationHeader;
-    private List<String> addSourceFields;
-    private List<FieldReference> additionalHeaders;
-    private List<FieldReference> additionalFields;
-    private boolean flattenStruct;
-    private String delimiter;
+    protected boolean addOperationHeader;
+    protected List<String> addSourceFields;
+    protected List<FieldReference> additionalHeaders;
+    protected List<FieldReference> additionalFields;
+    protected boolean flattenStruct;
+    protected String delimiter;
 
-    private boolean dropTombstones;
-    private DeleteHandling handleDeletes;
+    protected boolean dropTombstones;
+    protected DeleteHandling handleDeletes;
 
-    private SmtManager<R> smtManager;
+    protected SmtManager<R> smtManager;
 
     @Override
     public R apply(R record) {
@@ -265,7 +265,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         return newRecord(record, keyDocument, valueDocument);
     }
 
-    private R newRecord(R record, BsonDocument keyDocument, BsonDocument valueDocument) {
+    protected R newRecord(R record, BsonDocument keyDocument, BsonDocument valueDocument) {
         SchemaBuilder keySchemaBuilder = SchemaBuilder.struct();
         Set<Entry<String, BsonValue>> keyPairs = keyDocument.entrySet();
         for (Entry<String, BsonValue> keyPairsForSchema : keyPairs) {
@@ -345,7 +345,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         return newRecord;
     }
 
-    private void addSourceFieldsSchema(String fieldPrefix, List<String> addSourceFields, R originalRecord, SchemaBuilder valueSchemaBuilder) {
+    protected void addSourceFieldsSchema(String fieldPrefix, List<String> addSourceFields, R originalRecord, SchemaBuilder valueSchemaBuilder) {
         Schema sourceSchema = originalRecord.valueSchema().field("source").schema();
         for (String sourceField : addSourceFields) {
             if (sourceSchema.field(sourceField) == null) {
@@ -356,14 +356,14 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         }
     }
 
-    private void addAdditionalFieldsSchema(List<FieldReference> additionalFields, R originalRecord, SchemaBuilder valueSchemaBuilder) {
+    protected void addAdditionalFieldsSchema(List<FieldReference> additionalFields, R originalRecord, SchemaBuilder valueSchemaBuilder) {
         Schema sourceSchema = originalRecord.valueSchema();
         for (FieldReference fieldReference : additionalFields) {
             valueSchemaBuilder.field(fieldReference.newFieldName, fieldReference.getSchema(sourceSchema));
         }
     }
 
-    private void addSourceFieldsValue(List<String> addSourceFields, R originalRecord, Struct valueStruct) {
+    protected void addSourceFieldsValue(List<String> addSourceFields, R originalRecord, Struct valueStruct) {
         Struct sourceValue = ((Struct) originalRecord.value()).getStruct("source");
         for (String sourceField : addSourceFields) {
             valueStruct.put(ExtractNewRecordStateConfigDefinition.METADATA_FIELD_PREFIX + sourceField,
@@ -371,7 +371,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         }
     }
 
-    private void addFields(List<FieldReference> additionalFields, R originalRecord, Struct value) {
+    protected void addFields(List<FieldReference> additionalFields, R originalRecord, Struct value) {
         Struct originalRecordValue = (Struct) originalRecord.value();
 
         // Update the value with the new fields
@@ -380,7 +380,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         }
     }
 
-    private BsonDocument getUpdateDocument(R patchRecord, BsonDocument keyDocument) {
+    protected BsonDocument getUpdateDocument(R patchRecord, BsonDocument keyDocument) {
         BsonDocument valueDocument = new BsonDocument();
         BsonDocument document = BsonDocument.parse(patchRecord.value().toString());
 
@@ -425,7 +425,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         return valueDocument;
     }
 
-    private BsonDocument getInsertDocument(R record, BsonDocument key) {
+    protected BsonDocument getInsertDocument(R record, BsonDocument key) {
         BsonDocument valueDocument = BsonDocument.parse(record.value().toString());
         valueDocument.remove("_id");
         valueDocument.append("id", key.get("id"));
@@ -433,7 +433,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         return valueDocument;
     }
 
-    private Headers makeHeaders(List<FieldReference> additionalHeaders, Struct originalRecordValue) {
+    protected Headers makeHeaders(List<FieldReference> additionalHeaders, Struct originalRecordValue) {
         Headers headers = new ConnectHeaders();
 
         for (FieldReference fieldReference : additionalHeaders) {
@@ -519,7 +519,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
         recordFlattener.configure(delegateConfig);
     }
 
-    private static List<String> determineAdditionalSourceField(String addSourceFieldsConfig) {
+    protected static List<String> determineAdditionalSourceField(String addSourceFieldsConfig) {
         if (Strings.isNullOrEmpty(addSourceFieldsConfig)) {
             return Collections.emptyList();
         }
@@ -530,7 +530,7 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
      * Represents a field that should be added to the outgoing record as a header attribute or struct field.
      */
     // todo: refactor with ExtractNewRecordState
-    private static class FieldReference {
+    protected static class FieldReference {
         /**
          * The struct ("source", "transaction") hosting the given field, or {@code null} for "op" and "ts_ms".
          */
