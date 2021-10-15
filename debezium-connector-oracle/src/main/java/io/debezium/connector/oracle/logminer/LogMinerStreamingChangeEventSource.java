@@ -126,6 +126,8 @@ public class LogMinerStreamingChangeEventSource implements StreamingChangeEventS
                             "Online REDO LOG files or archive log files do not contain the offset scn " + startScn + ".  Please perform a new snapshot.");
                 }
 
+                checkTableColumnNameLengths(schema);
+
                 setNlsSessionParameters(jdbcConnection);
                 checkDatabaseAndTableState(jdbcConnection, connectorConfig.getPdbName(), schema);
 
@@ -666,6 +668,28 @@ public class LogMinerStreamingChangeEventSource implements StreamingChangeEventS
             if (column.name().length() > MAXIMUM_NAME_LENGTH) {
                 LOGGER.warn("Table '{}' won't be captured by Oracle LogMiner because column '{}' exceeds {} characters.",
                         table.id().table(), column.name(), MAXIMUM_NAME_LENGTH);
+            }
+        }
+    }
+
+    /**
+     * Examines the table and column names for all tables that are to be captured by the connector
+     * and logs a warning if any name exceeds {@link #MAXIMUM_NAME_LENGTH}.
+     *
+     * @param schema the database schema, should not be {@code null}
+     */
+    private void checkTableColumnNameLengths(OracleDatabaseSchema schema) {
+        for (TableId tableId : schema.tableIds()) {
+            final Table table = schema.tableFor(tableId);
+            if (table.id().table().length() > MAXIMUM_NAME_LENGTH) {
+                LOGGER.warn("Table '{}' won't be captured by Oracle LogMiner because its name exceeds {} characters.",
+                        table.id().table(), MAXIMUM_NAME_LENGTH);
+            }
+            for (Column column : table.columns()) {
+                if (column.name().length() > MAXIMUM_NAME_LENGTH) {
+                    LOGGER.warn("Table '{}' won't be captured by Oracle LogMiner because column '{}' exceeds {} characters.",
+                            table.id().table(), column.name(), MAXIMUM_NAME_LENGTH);
+                }
             }
         }
     }
