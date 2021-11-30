@@ -2828,6 +2828,10 @@ ifdef::product[]
 Incremental snapshots is a Technology Preview feature.
 endif::product[]
 
+|[[mysql-property-incremental-snapshot-chunk-size]]<<mysql-property-incremental-snapshot-chunk-size, `+incremental.snapshot.chunk.size+`>>
+|`1024`
+| The number of rows fetched from the database for each incremental snapshot iteration.
+
 |[[mysql-property-read-only]]<<mysql-property-read-only, `+read.only+`>>
 |`false`
 |Switch to alternative incremental snapshot watermarks implementation to avoid writes to signal data collection
