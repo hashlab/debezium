@@ -183,6 +183,30 @@ public class IncrementalSnapshotIT extends AbstractIncrementalSnapshotTest<Postg
         }
     }
 
+    @Test
+    public void insertsNumericPk() throws Exception {
+        // Testing.Print.enable();
+
+        try (final JdbcConnection connection = databaseConnection()) {
+            populateTable(connection, "s1.anumeric");
+        }
+        startConnector();
+
+        sendAdHocSnapshotSignal("s1.anumeric");
+
+        final int expectedRecordCount = ROW_COUNT;
+        final Map<Integer, Integer> dbChanges = consumeMixedWithIncrementalSnapshot(
+                expectedRecordCount,
+                x -> true,
+                k -> VariableScaleDecimal.toLogical(k.getStruct("pk")).getWrappedValue().intValue(),
+                record -> ((Struct) record.value()).getStruct("after").getInt32(valueFieldName()),
+                "test_server.s1.anumeric",
+                null);
+        for (int i = 0; i < expectedRecordCount; i++) {
+            Assertions.assertThat(dbChanges).includes(MapAssert.entry(i + 1, i));
+        }
+    }
+
     protected void populate4PkTable() throws SQLException {
         try (final JdbcConnection connection = databaseConnection()) {
             populate4PkTable(connection, "s1.a4");
