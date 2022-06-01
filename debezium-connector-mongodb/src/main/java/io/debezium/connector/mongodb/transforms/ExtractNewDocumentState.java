@@ -255,6 +255,9 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
             }
 
             isDeletion = true;
+
+            // Adding _id to delete message
+            valueDocument.append("_id", keyDocument.get("id"));
         }
 
         if (handleDeletes.equals(DeleteHandling.REWRITE)) {
