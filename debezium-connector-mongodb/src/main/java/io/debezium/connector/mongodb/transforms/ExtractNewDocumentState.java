@@ -259,7 +259,6 @@ public class ExtractNewDocumentState<R extends ConnectRecord<R>> implements Tran
 
         if (handleDeletes.equals(DeleteHandling.REWRITE)) {
             valueDocument.append(ExtractNewRecordStateConfigDefinition.DELETED_FIELD, new BsonBoolean(isDeletion));
-            valueDocument.append("id", keyDocument.get("id"));
         }
 
         return newRecord(record, keyDocument, valueDocument);
