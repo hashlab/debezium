@@ -71,8 +71,18 @@ public class Transformations implements Closeable {
 
     public SourceRecord transform(SourceRecord record) {
         for (Transformation<SourceRecord> t : transforms) {
-            record = t.apply(record);
+            try {
+                record = t.apply(record);
+            } catch (Exception e) {
+                String recordStr = "null";
+                if (record != null) {
+                    recordStr = record.toString();
+                }
+                LOGGER.error("Error applying transformation on record: " + recordStr, e);
+                throw e;
+            }
             if (record == null) {
+                LOGGER.warn("Record null. Breaking transforms loop.");
                 break;
             }
         }
